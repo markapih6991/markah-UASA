@@ -26,6 +26,21 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        /* Animasi putaran untuk ikon loading */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
@@ -45,7 +60,7 @@
         <div class="space-y-4">
             <div>
                 <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
-                    Kod Pelajar / No Kad Pengenalan Murid / IC
+                    Kod Pelajar / No Kad Pengenalan Murid
                 </label>
                 <input type="text" id="studentIdInput" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" 
@@ -82,14 +97,50 @@
                 <!-- Kad markah akan dijana oleh JavaScript -->
             </div>
 
+            <!-- ✨ BAHAGIAN CIRI GEMINI BARU ✨ -->
+            <div id="geminiSection" class="hidden mt-6 border-t border-gray-200 pt-6">
+                <!-- Ciri 1: Jana Ulasan -->
+                <button id="generateCommentButton" 
+                        class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all transform hover:scale-105">
+                    ✨ Jana Ulasan Prestasi AI
+                </button>
+
+                <!-- Status Loading Ulasan -->
+                <div id="geminiLoading" class="hidden mt-4 text-center text-gray-600">
+                    <div class="flex items-center justify-center">
+                        <div class="loader"></div>
+                        <span>Menganalisis prestasi...</span>
+                    </div>
+                </div>
+
+                <!-- Hasil Ulasan -->
+                <div id="geminiResult" class="hidden mt-4 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                    <h4 class="text-lg font-semibold text-indigo-900 mb-2">Ulasan dari Penasihat AI:</h4>
+                    <p id="geminiCommentText" class="text-base text-indigo-800 whitespace-pre-wrap"></p>
+                    
+                    <!-- Ciri 2: Teks-ke-Ucapan (TTS) -->
+                    <button id="readAloudButton" 
+                            class="hidden mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all text-sm">
+                        🔊 Sebutkan Keputusan & Ulasan
+                    </button>
+
+                    <!-- Status Loading TTS -->
+                    <div id="ttsLoading" class="hidden mt-4 text-center text-gray-600">
+                        <div class="flex items-center justify-center">
+                            <div class="loader"></div>
+                            <span>Menjana audio...</span>
+                        </div>
+                    </div>
+                    <audio id="audioPlayer" class="hidden"></audio>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
     <script>
         // --- (1) SEDIAKAN DATA ANDA DI SINI ---
-        // Tampal (paste) data anda di dalam pembolehubah `studentData` di bawah.
-        // Pastikan format data mengikut lajur yang ditetapkan.
         const studentData = [
             { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 85 },
             { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "English", markah: 72 },
@@ -109,6 +160,13 @@
         ];
         // --- TAMAT BAHAGIAN DATA ---
 
+        // --- (A) TETAPAN API GEMINI ---
+        // Biarkan apiKey sebagai ""
+        // Kunci API akan disediakan secara automatik dalam persekitaran ini.
+        const apiKey = "";
+        const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        const ttsApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
 
         // (2) Rujukan kepada elemen DOM
         const studentIdInput = document.getElementById('studentIdInput');
@@ -118,6 +176,20 @@
         const studentClassEl = document.getElementById('studentClass');
         const marksListEl = document.getElementById('marksList');
         const errorContainer = document.getElementById('errorContainer');
+
+        // Rujukan DOM untuk Ciri Gemini
+        const geminiSection = document.getElementById('geminiSection');
+        const generateCommentButton = document.getElementById('generateCommentButton');
+        const geminiLoading = document.getElementById('geminiLoading');
+        const geminiResult = document.getElementById('geminiResult');
+        const geminiCommentText = document.getElementById('geminiCommentText');
+        const readAloudButton = document.getElementById('readAloudButton');
+        const ttsLoading = document.getElementById('ttsLoading');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Pembolehubah untuk menyimpan data pelajar semasa
+        let currentStudentRecords = [];
+        let fullTextToRead = "";
 
         // (5) Fungsi Peraturan Penggredan
         function calculateGrade(markah) {
@@ -141,10 +213,23 @@
             marksListEl.innerHTML = '';
             studentNameEl.textContent = '';
             studentClassEl.textContent = '';
+            currentStudentRecords = []; // Kosongkan rekod lama
+            fullTextToRead = ""; // Kosongkan teks lama
+            
+            // Sembunyikan bahagian Gemini apabila carian baru dibuat
+            geminiSection.classList.add('hidden');
+            geminiResult.classList.add('hidden');
+            generateCommentButton.classList.remove('hidden'); // Tunjukkan semula butang jana
+            geminiLoading.classList.add('hidden');
+            readAloudButton.classList.add('hidden');
+            ttsLoading.classList.add('hidden');
+            audioPlayer.pause();
+            audioPlayer.src = "";
+
 
             // Semak jika input kosong
             if (!inputId) {
-                errorContainer.textContent = 'Sila masukkan Kod Pelajar anda.';
+                errorContainer.textContent = 'Sila masukkan Kod Pelajar atau No KP anda.';
                 errorContainer.classList.remove('hidden');
                 return;
             }
@@ -161,15 +246,23 @@
                 return;
             }
 
+            // Simpan rekod yang sepadan untuk digunakan oleh Gemini
+            currentStudentRecords = matchedRecords;
+
             // (4) Papar Keputusan jika ada padanan
-            // Tetapkan nama dan kelas (diambil dari rekod pertama yang sepadan)
             studentNameEl.textContent = matchedRecords[0].nama.toUpperCase(); // Tukar ke HURUF BESAR
             studentClassEl.textContent = `Kelas: ${matchedRecords[0].kelas}`;
+
+            // Sediakan teks untuk TTS
+            fullTextToRead = `Keputusan untuk ${matchedRecords[0].nama}, dari ${matchedRecords[0].kelas}.\n`;
 
             // Gelung (loop) untuk setiap subjek yang ditemui
             matchedRecords.forEach(record => {
                 const { gred, status } = calculateGrade(record.markah);
                 
+                // Tambah ke teks TTS
+                fullTextToRead += `${record.subjek}: ${record.markah}%, Gred ${gred}.\n`;
+
                 // Cipta kad HTML untuk setiap subjek
                 const subjectCardHTML = `
                     <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200 transition-all hover:shadow-lg">
@@ -191,12 +284,15 @@
                 marksListEl.innerHTML += subjectCardHTML;
             });
 
-            // Paparkan bekas (container) keputusan
+            // Paparkan bekas (container) keputusan dan bahagian Gemini
             resultsContainer.classList.remove('hidden');
+            geminiSection.classList.remove('hidden');
         }
 
-        // (2) Pautkan fungsi kepada butang "Semak Markah"
+        // (2) Pautkan fungsi kepada butang
         checkButton.addEventListener('click', checkMarks);
+        generateCommentButton.addEventListener('click', handleGenerateComment);
+        readAloudButton.addEventListener('click', handleReadAloud);
 
         // Tambahan: Benarkan pengguna menekan 'Enter' pada medan input
         studentIdInput.addEventListener('keypress', function(e) {
@@ -204,6 +300,206 @@
                 checkMarks();
             }
         });
+
+        // --- (B) FUNGSI-FUNGSI API GEMINI ---
+
+        /**
+         * Fungsi fetch dengan percubaan semula (exponential backoff)
+         * untuk mengendalikan had kadar API.
+         */
+        async function fetchWithBackoff(url, options, maxRetries = 5) {
+            let delay = 1000; // Mula dengan 1 saat
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    if (response.status === 429) { // Terlalu Banyak Permintaan
+                        // Tunggu dan cuba lagi
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Gandakan masa menunggu
+                    } else {
+                        // Ralat lain, lempar untuk ditangkap
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error; // Lempar ralat terakhir
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        /**
+         * (Ciri 1) Menjana ulasan menggunakan model teks Gemini.
+         */
+        async function handleGenerateComment() {
+            if (currentStudentRecords.length === 0) return;
+
+            // Tunjukkan loading, sembunyikan butang
+            geminiLoading.classList.remove('hidden');
+            generateCommentButton.classList.add('hidden');
+            geminiResult.classList.add('hidden');
+            readAloudButton.classList.add('hidden');
+
+            // Sediakan prompt untuk API
+            const marksString = currentStudentRecords.map(r => 
+                `${r.subjek}: ${r.markah}% (${calculateGrade(r.markah).gred})`
+            ).join(', ');
+
+            const systemPrompt = "Anda adalah seorang guru penasihat AI yang prihatin dan positif di sebuah sekolah di Malaysia. Berikan ulasan ringkas dan padat (2-3 ayat) untuk pelajar ini berdasarkan markah mereka. Puji subjek yang cemerlang dan berikan kata-kata galakan untuk subjek yang perlu diperbaiki. Gunakan bahasa Melayu yang formal tetapi mesra.";
+            const userQuery = `Tolong berikan ulasan untuk pelajar: ${currentStudentRecords[0].nama}, Kelas: ${currentStudentRecords[0].kelas}. Markah: ${marksString}.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const result = await fetchWithBackoff(textApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const comment = candidate.content.parts[0].text;
+                    geminiCommentText.innerText = comment; // Guna innerText untuk memaparkan format dengan betul
+                    geminiResult.classList.remove('hidden');
+                    readAloudButton.classList.remove('hidden'); // Tunjukkan butang TTS
+                    
+                    // Tambah ulasan pada teks untuk dibaca
+                    fullTextToRead += `\nUlasan dari Penasihat AI:\n ${comment}`;
+                } else {
+                    throw new Error("Respons API tidak sah.");
+                }
+            } catch (error) {
+                console.error('Error generating comment:', error);
+                geminiCommentText.innerText = 'Maaf, tidak dapat menjana ulasan pada masa ini. Sila cuba lagi.';
+                geminiResult.classList.remove('hidden');
+            } finally {
+                geminiLoading.classList.add('hidden'); // Sembunyikan loading
+            }
+        }
+
+        /**
+         * (Ciri 2) Menjana audio menggunakan API Gemini TTS.
+         */
+        async function handleReadAloud() {
+            if (!fullTextToRead) return;
+
+            ttsLoading.classList.remove('hidden');
+            readAloudButton.disabled = true;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: fullTextToRead }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Kore" } // Suara yang jelas
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                const result = await fetchWithBackoff(ttsApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10) || 24000;
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.play();
+                } else {
+                    throw new Error("Data audio tidak sah diterima.");
+                }
+
+            } catch (error) {
+                console.error('Error generating TTS:', error);
+                ttsLoading.innerText = 'Gagal menjana audio.';
+            } finally {
+                ttsLoading.classList.add('hidden');
+                readAloudButton.disabled = false;
+            }
+        }
+
+        // --- (C) FUNGSI HELPER UNTUK TTS ---
+
+        /**
+         * Menukar Base64 ke ArrayBuffer.
+         */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /**
+         * Menukar data PCM mentah ke format fail WAV.
+         */
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const dataSize = pcmData.length * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            // Header RIFF
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(view, 8, 'WAVE');
+            // Format "fmt "
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // 1 = PCM
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            // "data" sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            // Tulis data PCM
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
 
     </script>
 </body>
