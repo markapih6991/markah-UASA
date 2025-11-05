@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Semakan Markah</title>
+    <!-- Muat naik Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Muat naik fon Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Konfigurasi Tailwind untuk menggunakan fon Inter
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Latar belakang yang lembut */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <!-- Kad Utama -->
+    <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-6 md:p-8">
+
+        <!-- Bahagian Tajuk -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-700">
+                Portal Semakan Markah
+            </h1>
+            <p class="text-base text-gray-600 mt-1">Ujian Akhir Sesi Akademik</p>
+        </div>
+
+        <!-- Bahagian Input Pengguna -->
+        <div class="space-y-4">
+            <div>
+                <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
+                    Kod Pelajar / No Kad Pengenalan Murid
+                </label>
+                <input type="text" id="studentIdInput" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" 
+                       placeholder="Contoh: P101">
+            </div>
+            
+            <button id="checkButton" 
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                Semak Markah
+            </button>
+        </div>
+
+        <!-- Bahagian Mesej Ralat -->
+        <div id="errorContainer" 
+             class="hidden mt-4 text-center text-red-700 font-medium bg-red-100 p-3 rounded-lg">
+            <!-- Mesej ralat akan diisi oleh JavaScript -->
+        </div>
+
+        <!-- Bahagian Paparan Keputusan (Tersembunyi secara lalai) -->
+        <div id="resultsContainer" class="hidden mt-8">
+            
+            <!-- Maklumat Pelajar -->
+            <div class="text-center border-b border-gray-200 pb-4 mb-4">
+                <h2 id="studentName" class="text-2xl font-bold text-gray-900 uppercase">
+                    <!-- Nama Pelajar akan diisi oleh JavaScript -->
+                </h2>
+                <p id="studentClass" class="text-lg text-gray-600 mt-1">
+                    <!-- Kelas Pelajar akan diisi oleh JavaScript -->
+                </p>
+            </div>
+
+            <!-- Senarai Markah (dalam bentuk kad) -->
+            <div id="marksList" class="space-y-4">
+                <!-- Kad markah akan dijana oleh JavaScript -->
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // --- (1) SEDIAKAN DATA ANDA DI SINI ---
+        // Tampal (paste) data anda di dalam pembolehubah `studentData` di bawah.
+        // Pastikan format data mengikut lajur yang ditetapkan.
+        const studentData = [
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 85 },
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "English", markah: 72 },
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Sains", markah: 60 },
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Matematik", markah: 90 },
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Pendidikan Islam", markah: 88 },
+            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Bahasa Melayu", markah: 45 },
+            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "English", markah: 55 },
+            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Sains", markah: 30 },
+            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Matematik", markah: 18 },
+            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 68 },
+            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "English", markah: 81 },
+            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Sains", markah: 75 },
+            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Pendidikan Moral", markah: 50 },
+            { kod_pelajar: "P104", nama: "Mei Ling Tan", kelas: "5 Cekal", subjek: "Bahasa Melayu", markah: 19 },
+            { kod_pelajar: "P104", nama: "Mei Ling Tan", kelas: "5 Cekal", subjek: "Bahasa Cina", markah: 34 },
+        ];
+        // --- TAMAT BAHAGIAN DATA ---
+
+
+        // (2) Rujukan kepada elemen DOM
+        const studentIdInput = document.getElementById('studentIdInput');
+        const checkButton = document.getElementById('checkButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const studentNameEl = document.getElementById('studentName');
+        const studentClassEl = document.getElementById('studentClass');
+        const marksListEl = document.getElementById('marksList');
+        const errorContainer = document.getElementById('errorContainer');
+
+        // (5) Fungsi Peraturan Penggredan
+        function calculateGrade(markah) {
+            const mark = parseInt(markah, 10);
+            if (mark >= 82) return { gred: 'A', status: 'Cemerlang' };
+            if (mark >= 66) return { gred: 'B', status: 'Kepujian' };
+            if (mark >= 50) return { gred: 'C', status: 'Baik' };
+            if (mark >= 35) return { gred: 'D', status: 'Memuaskan' };
+            if (mark >= 20) return { gred: 'E', status: 'Mencapai Tahap Minimum' };
+            return { gred: 'F', status: 'Belum Mencapai Tahap Minimum' };
+        }
+
+        // (3) Fungsi Logik Carian Utama
+        function checkMarks() {
+            // Dapatkan input, buang ruang kosong, dan tukar ke huruf besar untuk perbandingan
+            const inputId = studentIdInput.value.trim().toUpperCase();
+
+            // Kosongkan keputusan & ralat lama
+            resultsContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+            marksListEl.innerHTML = '';
+            studentNameEl.textContent = '';
+            studentClassEl.textContent = '';
+
+            // Semak jika input kosong
+            if (!inputId) {
+                errorContainer.textContent = 'Sila masukkan Kod Pelajar anda.';
+                errorContainer.classList.remove('hidden');
+                return;
+            }
+
+            // Tapis data berdasarkan kod_pelajar
+            const matchedRecords = studentData.filter(student => 
+                student.kod_pelajar.toUpperCase() === inputId
+            );
+
+            // (3) Logik Mesej Ralat jika tiada padanan
+            if (matchedRecords.length === 0) {
+                errorContainer.textContent = 'Kod Pelajar tidak ditemui. Sila semak dan cuba lagi.';
+                errorContainer.classList.remove('hidden');
+                return;
+            }
+
+            // (4) Papar Keputusan jika ada padanan
+            // Tetapkan nama dan kelas (diambil dari rekod pertama yang sepadan)
+            studentNameEl.textContent = matchedRecords[0].nama.toUpperCase(); // Tukar ke HURUF BESAR
+            studentClassEl.textContent = `Kelas: ${matchedRecords[0].kelas}`;
+
+            // Gelung (loop) untuk setiap subjek yang ditemui
+            matchedRecords.forEach(record => {
+                const { gred, status } = calculateGrade(record.markah);
+                
+                // Cipta kad HTML untuk setiap subjek
+                const subjectCardHTML = `
+                    <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200 transition-all hover:shadow-lg">
+                        <p class="text-xl font-semibold text-gray-900">${record.subjek}</p>
+                        <div class="mt-2 flex items-end justify-between">
+                            <!-- Bahagian Markah -->
+                            <div>
+                                <p class="text-4xl font-bold text-blue-600">${record.markah}%</p>
+                            </div>
+                            <!-- Bahagian Gred -->
+                            <div class="text-right">
+                                <p class="text-2xl font-semibold text-blue-500">${gred}</p>
+                                <p class="text-sm text-gray-600">${status}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                // Tambah kad ke dalam senarai
+                marksListEl.innerHTML += subjectCardHTML;
+            });
+
+            // Paparkan bekas (container) keputusan
+            resultsContainer.classList.remove('hidden');
+        }
+
+        // (2) Pautkan fungsi kepada butang "Semak Markah"
+        checkButton.addEventListener('click', checkMarks);
+
+        // Tambahan: Benarkan pengguna menekan 'Enter' pada medan input
+        studentIdInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkMarks();
+            }
+        });
+
+    </script>
+</body>
+</html>
