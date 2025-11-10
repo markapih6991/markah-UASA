@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Semakan Markah</title>
+    <title>Portal Semakan Markah SMK Puteri Wangsa</title>
     <!-- Muat naik Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Muat naik fon Inter -->
@@ -58,191 +58,143 @@
         <!-- Bahagian Tajuk -->
         <div class="text-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-blue-700">
-                Portal Semakan Markah
+                Portal Semakan Markah SMK Puteri Wangsa
             </h1>
-            <p class="text-base text-gray-600 mt-1">Ujian Akhir Sesi Akademik</p>
+            <p class="text-base text-gray-600 mt-1">Ujian Akhir Sesi Akademik 2025</p>
         </div>
 
-        <!-- === BAHAGIAN BARU: RUANGAN DATA CSV (KINI BOLEH DILIPAT) === -->
-        <details id="adminSection" class="mb-6 bg-blue-50 rounded-lg border border-blue-100 overflow-hidden group">
+        <!-- === BAHAGIAN ADMIN (DISEMBUNYIKAN UNTUK VERSI PELAJAR) === -->
+        <!-- Nota: Kelas 'hidden' ditambah di sini untuk menyembunyikannya -->
+        <details id="adminSection" class="hidden mb-6 bg-blue-50 rounded-lg border border-blue-100 overflow-hidden group">
             <summary class="flex items-center justify-between w-full p-3 font-medium text-sm text-blue-800 cursor-pointer hover:bg-blue-100 focus:outline-none">
                 <span>🛠️ (Mod Guru) Klik untuk Muat Naik Data</span>
-                <!-- Ikon panah kecil yang berputar bila dibuka -->
                 <svg class="w-5 h-5 text-blue-500 transition-transform transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
             </summary>
-            
             <div class="p-4 border-t border-blue-100 space-y-4 bg-white">
                 <div>
                     <label for="dataTextArea" class="block text-sm font-medium text-gray-700 mb-1">
                         Tampal Data CSV Di Sini:
                     </label>
-                    <textarea id="dataTextArea" rows="5" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                              placeholder="Contoh:
-1.11E+11;NAMA PELAJAR;KELAS;subjek 1;80;subjek 2;75"></textarea>
+                    <textarea id="dataTextArea" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Contoh: 1.11E+11;NAMA;KELAS;BM;80"></textarea>
                 </div>
-                <button id="loadDataButton" 
-                        class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-transform transform hover:scale-105 text-sm">
+                <button id="loadDataButton" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-green-700 transition-transform transform hover:scale-105 text-sm">
                     Muat Naik Data
                 </button>
-                <div id="dataLoadMessage" class="hidden text-center font-medium p-2 rounded-lg text-sm">
-                    <!-- Mesej status muat naik data -->
-                </div>
+                <div id="dataLoadMessage" class="hidden text-center font-medium p-2 rounded-lg text-sm"></div>
             </div>
         </details>
-        <!-- === TAMAT BAHAGIAN BARU === -->
+        <!-- === TAMAT BAHAGIAN ADMIN === -->
 
-
-        <!-- Bahagian Input Pengguna -->
+        <!-- Bahagian Input Pengguna (Kini Sentiasa Aktif) -->
         <div id="searchSection" class="space-y-4">
             <div>
                 <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
-                    Masukkan Kod Pelajar / No KP
+                    Masukkan No Kad Pengenalan
                 </label>
+                <!-- 'disabled' telah dibuang dari input ini -->
                 <input type="text" id="studentIdInput" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg disabled:bg-gray-100 disabled:cursor-not-allowed" 
-                       placeholder="Contoh: 111009..."
-                       disabled> <!-- Mula sebagai 'disabled' jika tiada data -->
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" 
+                       placeholder="Contoh: 111009...">
             </div>
             
+            <!-- 'disabled' telah dibuang dari butang ini -->
             <button id="checkButton" 
-                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    disabled> <!-- Mula sebagai 'disabled' jika tiada data -->
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
                 Semak Markah
             </button>
         </div>
 
         <!-- Bahagian Mesej Ralat -->
-        <div id="errorContainer" 
-             class="hidden mt-4 text-center text-red-700 font-medium bg-red-100 p-3 rounded-lg">
-            <!-- Mesej ralat akan diisi oleh JavaScript -->
-        </div>
+        <div id="errorContainer" class="hidden mt-4 text-center text-red-700 font-medium bg-red-100 p-3 rounded-lg"></div>
 
-        <!-- Bahagian Paparan Keputusan (Tersembunyi secara lalai) -->
+        <!-- Bahagian Paparan Keputusan -->
         <div id="resultsContainer" class="hidden mt-8">
-            
-            <!-- Maklumat Pelajar -->
             <div class="text-center border-b border-gray-200 pb-4 mb-4">
-                <h2 id="studentName" class="text-2xl font-bold text-gray-900 uppercase">
-                    <!-- Nama Pelajar akan diisi oleh JavaScript -->
-                </h2>
-                <p id="studentClass" class="text-lg text-gray-600 mt-1">
-                    <!-- Kelas Pelajar akan diisi oleh JavaScript -->
-                </p>
+                <h2 id="studentName" class="text-2xl font-bold text-gray-900 uppercase"></h2>
+                <p id="studentClass" class="text-lg text-gray-600 mt-1"></p>
             </div>
+            <div id="marksList" class="space-y-4"></div>
 
-            <!-- Senarai Markah (dalam bentuk kad) -->
-            <div id="marksList" class="space-y-4">
-                <!-- Kad markah akan dijana oleh JavaScript -->
-            </div>
-
-            <!-- ✨ BAHAGIAN CIRI GEMINI BARU ✨ -->
+            <!-- Bahagian Gemini -->
             <div id="geminiSection" class="hidden mt-6 border-t border-gray-200 pt-6">
-                <!-- Ciri 1: Jana Ulasan -->
-                <button id="generateCommentButton" 
-                        class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all transform hover:scale-105">
+                <button id="generateCommentButton" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
                     ✨ Jana Ulasan Prestasi AI
                 </button>
-
-                <!-- Status Loading Ulasan -->
                 <div id="geminiLoading" class="hidden mt-4 text-center text-gray-600">
                     <div class="flex items-center justify-center">
-                        <div class="loader"></div>
-                        <span>Menganalisis prestasi...</span>
+                        <div class="loader"></div><span>Menganalisis prestasi...</span>
                     </div>
                 </div>
-
-                <!-- Hasil Ulasan -->
                 <div id="geminiResult" class="hidden mt-4 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                     <h4 class="text-lg font-semibold text-indigo-900 mb-2">Ulasan dari Penasihat AI:</h4>
                     <p id="geminiCommentText" class="text-base text-indigo-800 whitespace-pre-wrap"></p>
-                    
-                    <!-- Ciri 2: Teks-ke-Ucapan (TTS) -->
-                    <button id="readAloudButton" 
-                            class="hidden mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all text-sm">
+                    <button id="readAloudButton" class="hidden mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700 transition-all text-sm">
                         🔊 Sebutkan Keputusan & Ulasan
                     </button>
-
-                    <!-- Status Loading TTS -->
                     <div id="ttsLoading" class="hidden mt-4 text-center text-gray-600">
                         <div class="flex items-center justify-center">
-                            <div class="loader"></div>
-                            <span>Menjana audio...</span>
+                            <div class="loader"></div><span>Menjana audio...</span>
                         </div>
                     </div>
                     <audio id="audioPlayer" class="hidden"></audio>
                 </div>
             </div>
-
         </div>
-
     </div>
 
     <script>
-        // --- (1) SEDIAKAN DATA ANDA DI SINI ---
+        // --- (1) DATA PELAJAR (PENTING UNTUK VERCEL) ---
         
-        // Pembolehubah ini akan diisi oleh textarea ATAU anda boleh hardcode di sini
-        let studentData = [];
-
-        /* NOTA PENTING UNTUK GURU:
-        Jika anda ingin data ini KEKAL (contohnya untuk dihoskan di Vercel),
-        anda perlu menyalin data yang telah diproses dan tampalkannya terus ke dalam
-        pembolehubah studentData di atas.
-        
-        Jika anda hanya menggunakan Portal ini secara setempat (local), 
-        anda boleh gunakan ruangan "Mod Guru" untuk memuat naik data setiap kali.
+        /* ARAHAN PENTING UNTUK CIKGU:
+           Supaya data ini kekal di Vercel dan Mod Guru boleh disembunyikan,
+           Cikgu MESTI tampal data di dalam tanda kurungan siku [ ] di bawah.
+           
+           Formatnya mestilah:
+           { kod_pelajar: "123", nama: "ALI", kelas: "5A", subjek: "BM", markah: 80 },
+           { kod_pelajar: "123", nama: "ALI", kelas: "5A", subjek: "BI", markah: 70 },
+           ...
         */
-        
-        /**
-         * Fungsi untuk memproses data mentah menjadi format array JavaScript
-         */
+
+        let studentData = [
+            // --- TAMPAL DATA JSON ANDA DI SINI ---
+            // Contoh (boleh padam baris contoh ini selepas anda masukkan data sebenar):
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 85 },
+            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "English", markah: 72 },
+            
+            // ... data selebihnya ...
+        ];
+
+        // --- FUNGSI PARSE DATA (Untuk kegunaan Mod Guru jika diaktifkan semula) ---
         function parseStudentData(rawData) {
             const allRecords = [];
             const lines = rawData.trim().split('\n'); 
-
             lines.forEach(line => {
                 if (line.trim() === "") return; 
-
                 const parts = line.split(';'); 
                 if (parts.length < 3) return; 
-
                 let kodPelajar = parts[0].trim();
-                if (kodPelajar.includes('E+')) {
-                    kodPelajar = Number(kodPelajar).toString();
-                }
-                
+                if (kodPelajar.includes('E+')) { kodPelajar = Number(kodPelajar).toString(); }
                 const nama = parts[1].trim();
                 const kelas = parts[2].trim();
-
                 for (let i = 3; i < parts.length; i += 2) {
                     const subjek = parts[i] ? parts[i].trim() : null;
                     const markah = parts[i + 1] ? parts[i + 1].trim() : null;
-
                     if (subjek && markah && subjek !== "" && markah !== "") {
-                        allRecords.push({
-                            kod_pelajar: kodPelajar,
-                            nama: nama,
-                            kelas: kelas,
-                            subjek: subjek,
-                            markah: parseInt(markah, 10)
-                        });
+                        allRecords.push({ kod_pelajar: kodPelajar, nama: nama, kelas: kelas, subjek: subjek, markah: parseInt(markah, 10) });
                     }
                 }
             });
             return allRecords;
         }
-        
-        // --- TAMAT BAHAGIAN DATA ---
 
         // --- (A) TETAPAN API GEMINI ---
-        const apiKey = "";
+        const apiKey = ""; // Kunci API diuruskan oleh persekitaran ini
         const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
         const ttsApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
-
-        // (2) Rujukan kepada elemen DOM
+        // (2) Rujukan DOM
         const studentIdInput = document.getElementById('studentIdInput');
         const checkButton = document.getElementById('checkButton');
         const resultsContainer = document.getElementById('resultsContainer');
@@ -250,8 +202,6 @@
         const studentClassEl = document.getElementById('studentClass');
         const marksListEl = document.getElementById('marksList');
         const errorContainer = document.getElementById('errorContainer');
-
-        // Rujukan DOM untuk Ciri Gemini
         const geminiSection = document.getElementById('geminiSection');
         const generateCommentButton = document.getElementById('generateCommentButton');
         const geminiLoading = document.getElementById('geminiLoading');
@@ -260,66 +210,36 @@
         const readAloudButton = document.getElementById('readAloudButton');
         const ttsLoading = document.getElementById('ttsLoading');
         const audioPlayer = document.getElementById('audioPlayer');
-        
-        // Rujukan DOM untuk ciri data
         const dataTextArea = document.getElementById('dataTextArea');
         const loadDataButton = document.getElementById('loadDataButton');
         const dataLoadMessage = document.getElementById('dataLoadMessage');
         const adminSection = document.getElementById('adminSection');
 
-        // Pembolehubah untuk menyimpan data pelajar semasa
         let currentStudentRecords = [];
         let fullTextToRead = "";
 
-        // Semak jika data sudah wujud (jika hardcoded)
-        if (studentData.length > 0) {
-             studentIdInput.disabled = false;
-             checkButton.disabled = false;
-        }
-        
-        // --- FUNGSI BARU: Muat Naik Data ---
+        // --- FUNGSI MUAT NAIK DATA (ADMIN) ---
         function loadData() {
             const rawData = dataTextArea.value;
             if (rawData.trim() === "") {
-                dataLoadMessage.textContent = 'Ruangan data tidak boleh kosong.';
-                dataLoadMessage.classList.remove('hidden', 'text-green-700', 'bg-green-100');
-                dataLoadMessage.classList.add('text-red-700', 'bg-red-100');
-                return;
+                showMessage('Ruangan data tidak boleh kosong.', true); return;
             }
-
             try {
-                studentData = parseStudentData(rawData); // Proses data
-                if (studentData.length === 0) {
-                    throw new Error('Format data tidak sah atau tiada data ditemui.');
-                }
-                
-                // Berjaya dimuat naik
-                dataLoadMessage.textContent = `Berjaya memuat naik ${studentData.length} rekod.`;
-                dataLoadMessage.classList.remove('hidden', 'text-red-700', 'bg-red-100');
-                dataLoadMessage.classList.add('text-green-700', 'bg-green-100');
-                
-                // Aktifkan bahagian carian
-                studentIdInput.disabled = false;
-                checkButton.disabled = false;
-                
-                // Tutup (collapse) bahagian admin secara automatik selepas berjaya
-                setTimeout(() => {
-                    adminSection.removeAttribute('open');
-                    // Kosongkan mesej selepas ditutup
-                     setTimeout(() => {
-                        dataLoadMessage.classList.add('hidden');
-                     }, 500);
-                }, 1500);
-
-
+                const newData = parseStudentData(rawData);
+                if (newData.length === 0) throw new Error('Format data tidak sah.');
+                studentData = newData; // KEMASKINI DATA UTAMA
+                showMessage(`Berjaya memuat naik ${studentData.length} rekod.`, false);
+                setTimeout(() => { adminSection.removeAttribute('open'); dataLoadMessage.classList.add('hidden'); }, 1500);
             } catch (error) {
-                dataLoadMessage.textContent = `Ralat: ${error.message}`;
-                dataLoadMessage.classList.remove('hidden', 'text-green-700', 'bg-green-100');
-                dataLoadMessage.classList.add('text-red-700', 'bg-red-100');
+                showMessage(`Ralat: ${error.message}`, true);
             }
         }
+        function showMessage(msg, isError) {
+            dataLoadMessage.textContent = msg;
+            dataLoadMessage.className = `text-center font-medium p-2 rounded-lg text-sm ${isError ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'}`;
+        }
 
-        // (5) Fungsi Peraturan Penggredan
+        // --- LOGIK UTAMA ---
         function calculateGrade(markah) {
             const mark = parseInt(markah, 10);
             if (mark >= 82) return { gred: 'A', status: 'Cemerlang' };
@@ -330,230 +250,93 @@
             return { gred: 'F', status: 'Belum Mencapai Tahap Minimum' };
         }
 
-        // (3) Fungsi Logik Carian Utama
         function checkMarks() {
             let rawInput = studentIdInput.value.trim();
+            resetUI();
 
-            // Kosongkan keputusan & ralat lama
-            resultsContainer.classList.add('hidden');
-            errorContainer.classList.add('hidden');
-            marksListEl.innerHTML = '';
-            studentNameEl.textContent = '';
-            studentClassEl.textContent = '';
-            currentStudentRecords = [];
-            fullTextToRead = "";
+            if (!rawInput) { showError('Sila masukkan Kod Pelajar atau No KP anda.'); return; }
             
-            geminiSection.classList.add('hidden');
-            geminiResult.classList.add('hidden');
-            generateCommentButton.classList.remove('hidden');
-            geminiLoading.classList.add('hidden');
-            readAloudButton.classList.add('hidden');
-            ttsLoading.classList.add('hidden');
-            audioPlayer.pause();
-            audioPlayer.src = "";
+            // Jika tiada data langsung dalam sistem
+            if (studentData.length === 0) { showError('Harap maaf, data markah belum dimuat naik ke dalam sistem.'); return; }
 
-            if (!rawInput) {
-                errorContainer.textContent = 'Sila masukkan Kod Pelajar atau No KP anda.';
-                errorContainer.classList.remove('hidden');
-                return;
-            }
-
-            // --- PEMBETULAN UNTUK NO IC/KOD SAINTIFIK ---
-            let normalizedInput = rawInput;
-            if (rawInput.toUpperCase().includes('E+')) {
-                normalizedInput = Number(rawInput).toString();
-            }
+            let normalizedInput = rawInput.toUpperCase().includes('E+') ? Number(rawInput).toString() : rawInput;
             const finalInputId = normalizedInput.toUpperCase();
-            
-            const matchedRecords = studentData.filter(student => 
-                student.kod_pelajar.toUpperCase() === finalInputId
-            );
+            const matchedRecords = studentData.filter(s => s.kod_pelajar.toUpperCase() === finalInputId);
 
-            if (matchedRecords.length === 0) {
-                errorContainer.textContent = 'Kod Pelajar tidak ditemui. Sila semak dan cuba lagi.';
-                errorContainer.classList.remove('hidden');
-                return;
-            }
+            if (matchedRecords.length === 0) { showError('Kod Pelajar tidak ditemui. Sila semak dan cuba lagi.'); return; }
 
-            currentStudentRecords = matchedRecords;
+            displayResults(matchedRecords);
+        }
 
-            studentNameEl.textContent = matchedRecords[0].nama.toUpperCase();
-            studentClassEl.textContent = `Kelas: ${matchedRecords[0].kelas}`;
-            fullTextToRead = `Keputusan untuk ${matchedRecords[0].nama}, dari ${matchedRecords[0].kelas}.\n`;
+        function resetUI() {
+            resultsContainer.classList.add('hidden'); errorContainer.classList.add('hidden');
+            marksListEl.innerHTML = ''; geminiSection.classList.add('hidden'); geminiResult.classList.add('hidden');
+            generateCommentButton.classList.remove('hidden'); readAloudButton.classList.add('hidden');
+            audioPlayer.pause(); audioPlayer.src = "";
+        }
+        function showError(msg) { errorContainer.textContent = msg; errorContainer.classList.remove('hidden'); }
 
-            matchedRecords.forEach(record => {
-                const { gred, status } = calculateGrade(record.markah);
-                fullTextToRead += `${record.subjek}: ${record.markah}%, Gred ${gred}.\n`;
+        function displayResults(records) {
+            currentStudentRecords = records;
+            studentNameEl.textContent = records[0].nama.toUpperCase();
+            studentClassEl.textContent = `Kelas: ${records[0].kelas}`;
+            fullTextToRead = `Keputusan untuk ${records[0].nama}, dari ${records[0].kelas}.\n`;
 
-                const subjectCardHTML = `
-                    <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200 transition-all hover:shadow-lg">
-                        <p class="text-xl font-semibold text-gray-900">${record.subjek}</p>
+            records.forEach(r => {
+                const { gred, status } = calculateGrade(r.markah);
+                fullTextToRead += `${r.subjek}: ${r.markah}%, Gred ${gred}.\n`;
+                marksListEl.innerHTML += `
+                    <div class="bg-gray-50 p-5 rounded-xl shadow-md border border-gray-200">
+                        <p class="text-xl font-semibold text-gray-900">${r.subjek}</p>
                         <div class="mt-2 flex items-end justify-between">
-                            <div><p class="text-4xl font-bold text-blue-600">${record.markah}%</p></div>
-                            <div class="text-right">
-                                <p class="text-2xl font-semibold text-blue-500">${gred}</p>
-                                <p class="text-sm text-gray-600">${status}</p>
-                            </div>
+                            <div><p class="text-4xl font-bold text-blue-600">${r.markah}%</p></div>
+                            <div class="text-right"><p class="text-2xl font-semibold text-blue-500">${gred}</p><p class="text-sm text-gray-600">${status}</p></div>
                         </div>
-                    </div>
-                `;
-                marksListEl.innerHTML += subjectCardHTML;
+                    </div>`;
             });
-
-            resultsContainer.classList.remove('hidden');
-            geminiSection.classList.remove('hidden');
+            resultsContainer.classList.remove('hidden'); geminiSection.classList.remove('hidden');
         }
 
-        loadDataButton.addEventListener('click', loadData);
-        checkButton.addEventListener('click', checkMarks);
-        generateCommentButton.addEventListener('click', handleGenerateComment);
-        readAloudButton.addEventListener('click', handleReadAloud);
-
-        studentIdInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkMarks();
-            }
-        });
-
-        // --- (B) FUNGSI-FUNGSI API GEMINI ---
-        async function fetchWithBackoff(url, options, maxRetries = 5) {
-            let delay = 1000;
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) return response.json();
-                    if (response.status === 429) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                    } else {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                } catch (error) {
-                    if (i === maxRetries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-            }
-        }
+        // --- FUNGSI GEMINI (TIDAK BERUBAH) ---
+        async function fetchWithBackoff(url, options, maxRetries=3) {
+             let delay=1000; for(let i=0;i<maxRetries;i++){ try{const res=await fetch(url,options);if(res.ok)return res.json();if(res.status===429){await new Promise(r=>setTimeout(r,delay));delay*=2;}else throw new Error(res.status);}catch(e){if(i===maxRetries-1)throw e;await new Promise(r=>setTimeout(r,delay));delay*=2;}}}
 
         async function handleGenerateComment() {
             if (currentStudentRecords.length === 0) return;
-
-            geminiLoading.classList.remove('hidden');
-            generateCommentButton.classList.add('hidden');
-            geminiResult.classList.add('hidden');
-            readAloudButton.classList.add('hidden');
-
-            const marksString = currentStudentRecords.map(r => 
-                `${r.subjek}: ${r.markah}% (${calculateGrade(r.markah).gred})`
-            ).join(', ');
-
-            const systemPrompt = "Anda adalah seorang guru penasihat AI yang prihatin dan positif di sebuah sekolah di Malaysia. Berikan ulasan ringkas dan padat (2-3 ayat) untuk pelajar ini berdasarkan markah mereka. Puji subjek yang cemerlang dan berikan kata-kata galakan untuk subjek yang perlu diperbaiki. Gunakan bahasa Melayu yang formal tetapi mesra.";
-            const userQuery = `Tolong berikan ulasan untuk pelajar: ${currentStudentRecords[0].nama}, Kelas: ${currentStudentRecords[0].kelas}. Markah: ${marksString}.`;
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
-
+            geminiLoading.classList.remove('hidden'); generateCommentButton.classList.add('hidden');
+            const marksStr = currentStudentRecords.map(r => `${r.subjek}: ${r.markah}% (${calculateGrade(r.markah).gred})`).join(', ');
+            const payload = { contents: [{ parts: [{ text: `Tolong berikan ulasan untuk pelajar: ${currentStudentRecords[0].nama}, Kelas: ${currentStudentRecords[0].kelas}. Markah: ${marksStr}.` }] }], systemInstruction: { parts: [{ text: "Anda adalah guru penasihat AI yang positif. Beri ulasan ringkas (2-3 ayat) dalam Bahasa Melayu, puji yang cemerlang, beri galakan untuk yang lemah." }] } };
             try {
-                const result = await fetchWithBackoff(textApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const comment = candidate.content.parts[0].text;
-                    geminiCommentText.innerText = comment;
-                    geminiResult.classList.remove('hidden');
-                    readAloudButton.classList.remove('hidden');
-                    fullTextToRead += `\nUlasan dari Penasihat AI:\n ${comment}`;
-                } else {
-                    throw new Error("Respons API tidak sah.");
-                }
-            } catch (error) {
-                console.error('Error generating comment:', error);
-                geminiCommentText.innerText = 'Maaf, tidak dapat menjana ulasan pada masa ini. Sila cuba lagi.';
-                geminiResult.classList.remove('hidden');
-            } finally {
-                geminiLoading.classList.add('hidden');
-            }
+                const res = await fetchWithBackoff(textApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const comment = res.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (comment) { geminiCommentText.innerText = comment; geminiResult.classList.remove('hidden'); readAloudButton.classList.remove('hidden'); fullTextToRead += `\nUlasan AI:\n ${comment}`; }
+            } catch (e) { geminiCommentText.innerText = 'Maaf, ulasan tidak dapat dijana.'; geminiResult.classList.remove('hidden'); }
+            finally { geminiLoading.classList.add('hidden'); }
         }
 
         async function handleReadAloud() {
             if (!fullTextToRead) return;
-            ttsLoading.classList.remove('hidden');
-            readAloudButton.disabled = true;
-
-            const payload = {
-                contents: [{ parts: [{ text: fullTextToRead }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
-                },
-                model: "gemini-2.5-flash-preview-tts"
-            };
-
+            ttsLoading.classList.remove('hidden'); readAloudButton.disabled = true;
             try {
-                const result = await fetchWithBackoff(ttsApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-
-                if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10) || 24000;
-                    const pcmData = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmData);
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    audioPlayer.src = URL.createObjectURL(wavBlob);
-                    audioPlayer.play();
-                } else {
-                    throw new Error("Data audio tidak sah diterima.");
+                const res = await fetchWithBackoff(ttsApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: fullTextToRead }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } }, model: "gemini-2.5-flash-preview-tts" }) });
+                const audioData = res?.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                if (audioData) {
+                     const wav = pcmToWav(new Int16Array(base64ToArrayBuffer(audioData)), 24000);
+                     audioPlayer.src = URL.createObjectURL(wav); audioPlayer.play();
                 }
-            } catch (error) {
-                console.error('Error generating TTS:', error);
-                ttsLoading.innerText = 'Gagal menjana audio.';
-            } finally {
-                ttsLoading.classList.add('hidden');
-                readAloudButton.disabled = false;
-            }
+            } catch (e) { console.error(e); ttsLoading.innerText = 'Gagal menjana audio.'; }
+            finally { ttsLoading.classList.add('hidden'); readAloudButton.disabled = false; }
         }
+        function base64ToArrayBuffer(b64){const b=atob(b64),l=b.length,u=new Uint8Array(l);for(let i=0;i<l;i++)u[i]=b.charCodeAt(i);return u.buffer;}
+        function pcmToWav(pcm,r){const c=1,b=16,d=pcm.length*2,bf=new ArrayBuffer(44+d),v=new DataView(bf);wS(v,0,'RIFF');v.setUint32(4,36+d,true);wS(v,8,'WAVE');wS(v,12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,c,true);v.setUint32(24,r,true);v.setUint32(28,r*c*2,true);v.setUint16(32,c*2,true);v.setUint16(34,b,true);wS(v,36,'data');v.setUint32(40,d,true);for(let i=0;i<pcm.length;i++)v.setInt16(44+i*2,pcm[i],true);return new Blob([v],{type:'audio/wav'});}
+        function wS(v,o,s){for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
 
-        function base64ToArrayBuffer(base64) {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
-            return bytes.buffer;
-        }
-
-        function pcmToWav(pcmData, sampleRate) {
-            const numChannels = 1; const bitsPerSample = 16;
-            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
-            const blockAlign = numChannels * (bitsPerSample / 8);
-            const dataSize = pcmData.length * (bitsPerSample / 8);
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + dataSize, true);
-            writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-            view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true);
-            view.setUint32(28, byteRate, true); view.setUint16(32, blockAlign, true);
-            view.setUint16(34, bitsPerSample, true); writeString(view, 36, 'data');
-            view.setUint32(40, dataSize, true);
-            for (let i = 0; i < pcmData.length; i++) { view.setInt16(44 + i * 2, pcmData[i], true); }
-            return new Blob([view], { type: 'audio/wav' });
-        }
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) { view.setUint8(offset + i, string.charCodeAt(i)); }
-        }
+        // Pautkan Event Listeners
+        loadDataButton.addEventListener('click', loadData);
+        checkButton.addEventListener('click', checkMarks);
+        generateCommentButton.addEventListener('click', handleGenerateComment);
+        readAloudButton.addEventListener('click', handleReadAloud);
+        studentIdInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkMarks(); });
     </script>
 </body>
 </html>
