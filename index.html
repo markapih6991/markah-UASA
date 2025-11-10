@@ -63,8 +63,8 @@
             <p class="text-base text-gray-600 mt-1">Ujian Akhir Sesi Akademik 2025</p>
         </div>
 
-        <!-- === BAHAGIAN ADMIN (DISEMBUNYIKAN UNTUK VERSI PELAJAR) === -->
-        <!-- Nota: Kelas 'hidden' ditambah di sini untuk menyembunyikannya -->
+        <!-- === BAHAGIAN ADMIN (DISEMBUNYIKAN UNTUK PELAJAR) === -->
+        <!-- Nota: Kelas 'hidden' ditambah semula di sini -->
         <details id="adminSection" class="hidden mb-6 bg-blue-50 rounded-lg border border-blue-100 overflow-hidden group">
             <summary class="flex items-center justify-between w-full p-3 font-medium text-sm text-blue-800 cursor-pointer hover:bg-blue-100 focus:outline-none">
                 <span>🛠️ (Mod Guru) Klik untuk Muat Naik Data</span>
@@ -77,7 +77,7 @@
                     <label for="dataTextArea" class="block text-sm font-medium text-gray-700 mb-1">
                         Tampal Data CSV Di Sini:
                     </label>
-                    <textarea id="dataTextArea" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Contoh: 1.11E+11;NAMA;KELAS;BM;80"></textarea>
+                    <textarea id="dataTextArea" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Contoh: 111009011234;NAMA;KELAS;BM;80"></textarea>
                 </div>
                 <button id="loadDataButton" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-green-700 transition-transform transform hover:scale-105 text-sm">
                     Muat Naik Data
@@ -87,19 +87,17 @@
         </details>
         <!-- === TAMAT BAHAGIAN ADMIN === -->
 
-        <!-- Bahagian Input Pengguna (Kini Sentiasa Aktif) -->
+        <!-- Bahagian Input Pengguna -->
         <div id="searchSection" class="space-y-4">
             <div>
                 <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
                     Masukkan No Kad Pengenalan
                 </label>
-                <!-- 'disabled' telah dibuang dari input ini -->
                 <input type="text" id="studentIdInput" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" 
-                       placeholder="Contoh: 111009...">
+                       placeholder="Contoh: 111009011234...">
             </div>
             
-            <!-- 'disabled' telah dibuang dari butang ini -->
             <button id="checkButton" 
                     class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
                 Semak Markah
@@ -145,52 +143,176 @@
     </div>
 
     <script>
-        // --- (1) DATA PELAJAR (PENTING UNTUK VERCEL) ---
-        
-        /* ARAHAN PENTING UNTUK CIKGU:
-           Supaya data ini kekal di Vercel dan Mod Guru boleh disembunyikan,
-           Cikgu MESTI tampal data di dalam tanda kurungan siku [ ] di bawah.
-           
-           Formatnya mestilah:
-           { kod_pelajar: "123", nama: "ALI", kelas: "5A", subjek: "BM", markah: 80 },
-           { kod_pelajar: "123", nama: "ALI", kelas: "5A", subjek: "BI", markah: 70 },
-           ...
+        // --- (1) DATA PELAJAR (WAJIB ISI UNTUK GITHUB/VERCEL) ---
+        /* CIKGU, SILA TAMPAL DATA CSV ANDA DI ANTARA TANDA BACKTICK (`) DI BAWAH.
+           JANGAN PADAM TANDA ` DI AWAL DAN DI AKHIR DATA.
         */
 
-        let studentData = [
-            // --- TAMPAL DATA JSON ANDA DI SINI ---
-            // Contoh (boleh padam baris contoh ini selepas anda masukkan data sebenar):
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 85 },
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "English", markah: 72 },
-            
-            // ... data selebihnya ...
-        ];
+        const rawStudentDataCsv = `
+no ic;nama;kelas;subjek;markah;subjek;markah
+111009060459;ABDUL SALAM BIN ABDUL RAUF;2 EFESIEN;BAHASA MELAYU;61;BAHASA INGGERIS;50
+110822060860;CHAY POH LIN;2 EFESIEN;BAHASA MELAYU;44;BAHASA INGGERIS;90
+111205011435;CHEAH DHITO HARLAN SYAH BIN MUHAMMAD AZLAN;2 EFESIEN;BAHASA MELAYU;26;BAHASA INGGERIS;40
+110606011749;DAEVENDREN A/L GUNALAN;2 EFESIEN;BAHASA MELAYU;27;BAHASA INGGERIS;66
+111118010653;ELFY RIZQIN BIN KHALID;2 EFESIEN;BAHASA MELAYU;70;BAHASA INGGERIS;69
+110321011411;JEREMY TAN YUAN PING;2 EFESIEN;BAHASA MELAYU;12;BAHASA INGGERIS;35
+101219080520;KAM YUN HAN;2 EFESIEN;BAHASA MELAYU;62;BAHASA INGGERIS;61
+110821030950;MARSYANDA OLDELIA BINTI SEMAWI;2 EFESIEN;BAHASA MELAYU;72;BAHASA INGGERIS;53
+110713010899;MUHAMMAD FAKHRUL AMIN BIN MOHD ANUAR;2 EFESIEN;BAHASA MELAYU;61;BAHASA INGGERIS;79
+110618010911;MUHAMMAD FETIH NAUFAL BIN MOHD FAIDZAL;2 EFESIEN;BAHASA MELAYU;72;BAHASA INGGERIS;68
+110530011709;MUHAMMAD FIRAS BIN MISRAN;2 EFESIEN;BAHASA MELAYU;53;BAHASA INGGERIS;61
+110421011611;MUHAMMAD HAKIM HANIF BIN RASATU;2 EFESIEN;BAHASA MELAYU;50;BAHASA INGGERIS;73
+110623010211;MUHAMMAD HAZIM IMAN BIN HAZMAN;2 EFESIEN;BAHASA MELAYU;72;BAHASA INGGERIS;91
+110915010010;NG YEE QING;2 EFESIEN;BAHASA MELAYU;58;BAHASA INGGERIS;48
+110818010326;NUR AINA ATHIRAH BINTI ZAIWIN;2 EFESIEN;BAHASA MELAYU;68;BAHASA INGGERIS;61
+110120010690;NUR AINA DAMIA BINTI AZLAN SHAH;2 EFESIEN;BAHASA MELAYU;90;BAHASA INGGERIS;64
+111115010375;NUR HARRAZ RIFQI BIN NOR AZLAN;2 EFESIEN;BAHASA MELAYU;56;BAHASA INGGERIS;40
+111109010694;NUR QASEH QALESYAH BINTI SAHRIZAL;2 EFESIEN;BAHASA MELAYU;77;BAHASA INGGERIS;76
+111118010266;NUR QASEH QATRUNNADA BINTI MOHD ZULKEFLEY;2 EFESIEN;BAHASA MELAYU;76;BAHASA INGGERIS;65
+110921010930;QISYA QASREENA BINTI NORAZMAN;2 EFESIEN;BAHASA MELAYU;67;BAHASA INGGERIS;55
+110330010437;TAM XAVIER;2 EFESIEN;BAHASA MELAYU;20;BAHASA INGGERIS;91
+110602011995;TIEW JING KAI;2 EFESIEN;BAHASA MELAYU;36;BAHASA INGGERIS;29
+110122011697;VITESH A/L CHENDRAN;2 EFESIEN;BAHASA MELAYU;25;BAHASA INGGERIS;55
+110217011163;WAN MOHAMAD FAIQ QAYYUM BIN WAN MOHD FAUZI;2 EFESIEN;BAHASA MELAYU;56;BAHASA INGGERIS;40
+111020010188;WONG YEE SHAN;2 EFESIEN;BAHASA MELAYU;50;BAHASA INGGERIS;53
+110130010731;YOGA A/L JAYA KUMAR;2 EFESIEN;BAHASA MELAYU;30;BAHASA INGGERIS;64
+110102011059;YUKEN A/L GOPAL;2 EFESIEN;BAHASA MELAYU;42;BAHASA INGGERIS;46
+120914010800;AAFIYAH NURZAHRA BINTI AZLAN;1 ARIF;BAHASA MELAYU;84;BAHASA INGGERIS;93
+120915010685;AATHI SHANKARAA A/L LACHUMANAN;1 ARIF;BAHASA MELAYU;66;BAHASA INGGERIS;84
+120708010359;ALVIN HOW JUN SIANG;1 ARIF;BAHASA MELAYU;84;BAHASA INGGERIS;61
+120805011003;AMAAR LUTHFI ISAAC BIN AZAMMUDIN;1 ARIF;BAHASA MELAYU;83;BAHASA INGGERIS;86
+120907011776;CHAN YONG XI;1 ARIF;BAHASA MELAYU;86;BAHASA INGGERIS;90
+121012010750;CHIN WEI XIN;1 ARIF;BAHASA MELAYU;59;BAHASA INGGERIS;48
+120716011669;GOH CHENG WEI;1 ARIF;BAHASA MELAYU;73;BAHASA INGGERIS;73
+120517010428;HOW YEN ERN;1 ARIF;BAHASA MELAYU;72;BAHASA INGGERIS;63
+120714011227;ISHWARAN A/L KANNAN;1 ARIF;BAHASA MELAYU;62;BAHASA INGGERIS;55
+121215011294;JANANI A/P CHNDRA KUMAR;1 ARIF;BAHASA MELAYU;73;BAHASA INGGERIS;74
+120422011313;LEE ZHANG YU;1 ARIF;BAHASA MELAYU;27;BAHASA INGGERIS;29
+120629011652;LILY LAIQAH BINTI MD RAFI;1 ARIF;BAHASA MELAYU;82;BAHASA INGGERIS;81
+120226011471;LOO KAI JING;1 ARIF;BAHASA MELAYU;60;BAHASA INGGERIS;56
+120806010432;MIRABELLE SHANA A/P MARKSTEWART;1 ARIF;BAHASA MELAYU;62;BAHASA INGGERIS;71
+121225010025;MOHAMAD FARITH IRFAN BIN MOHAMAD FAIZAL;1 ARIF;BAHASA MELAYU;82;BAHASA INGGERIS;76
+120206010017;MUHAMMAD ADAM MUKHRIZ BIN MUHAMMAD FAIZAL;1 ARIF;BAHASA MELAYU;91;BAHASA INGGERIS;61
+120805010473;MUHAMMAD ASYWAD BIN NAJIB;1 ARIF;BAHASA MELAYU;65;BAHASA INGGERIS;64
+121213101501;NAUFAL AIRISH BIN NAZARUL NAZZUAN;1 ARIF;BAHASA MELAYU;69;BAHASA INGGERIS;68
+121017010434;NUR ALEEYA AISHAH BINTI MOHD FAIZAL;1 ARIF;BAHASA MELAYU;84;BAHASA INGGERIS;81
+120730010566;NUR CARLISA BINTI BAHA;1 ARIF;BAHASA MELAYU;86;BAHASA INGGERIS;73
+120708010682;NUR KHALISAH HANI BINTI MOHD AFFANDI;1 ARIF;BAHASA MELAYU;82;BAHASA INGGERIS;70
+120201010288;NURLIYA ANISAH BINTI MOHD ROSMAN;1 ARIF;BAHASA MELAYU;72;BAHASA INGGERIS;80
+120811140733;RUBENDRAN A/L VIMALAN;1 ARIF;BAHASA MELAYU;48;BAHASA INGGERIS;56
+120713011284;SITI NUR HUMAIRAH HUSSEIN BINTI ABDUL MUHAIMIN;1 ARIF;BAHASA MELAYU;87;BAHASA INGGERIS;83
+120522080252;TAN YU ENN;1 ARIF;BAHASA MELAYU;65;BAHASA INGGERIS;68
+120901011409;THASVIN A/L KALIYAPAN;1 ARIF;BAHASA MELAYU;64;BAHASA INGGERIS;89
+120210010124;TING WEE;1 ARIF;BAHASA MELAYU;78;BAHASA INGGERIS;63
+120818011037;VARTA SARATHI A/L SAMUGAM;1 ARIF;BAHASA MELAYU;79;BAHASA INGGERIS;79
+120306010161;ZAIRULHAKIMI BIN ZAIRULHISHAM;1 ARIF;BAHASA MELAYU;85;BAHASA INGGERIS;66
+121121011699;AMMAR REEFQY BIN ARIFIN;1 INOVASI;BAHASA MELAYU;28;;
+120917010179;ASYRAF MUSTAQIM BIN MULIADI;1 INOVASI;BAHASA MELAYU;28;;
+110906011724;CHAN KAH KAH;1 INOVASI;BAHASA MELAYU;14;;
+120211011241;DAMIEN ASYRAF BIN MOHD ZAKARIA;1 INOVASI;BAHASA MELAYU;41;;
+111209020347;HOA JUN KAI;1 INOVASI;BAHASA MELAYU;8;;
+121202010567;IZMAL MIQAIL BIN MOHD. IZWANUDDIN;1 INOVASI;BAHASA MELAYU;32;;
+110904010576;JESICCA SEE HUI EN;1 INOVASI;BAHASA MELAYU;20;;
+120521010930;LAU SHAN SHAN;1 INOVASI;BAHASA MELAYU;31;;
+121031141131;LEAN YI CHEN;1 INOVASI;BAHASA MELAYU;34;;
+120723010234;LOH ZHI XUAN;1 INOVASI;BAHASA MELAYU;36;;
+121113011779;LOO SHARE KEONG;1 INOVASI;BAHASA MELAYU;22;;
+120920010743;MUHAMMAD ADAM AL QAYYUM BIN MUHAMMAD SALLEH;1 INOVASI;BAHASA MELAYU;4;;
+120602010369;MUHAMMAD AIDIL HAKIMIE BIN ROSLAN;1 INOVASI;BAHASA MELAYU;35;;
+120630010307;MUHAMMAD ALIFF BIN AZWAN;1 INOVASI;BAHASA MELAYU;29;;
+120309010183;MUHAMMAD ASYRAF BIN MOHD HAIRUDDIN;1 INOVASI;BAHASA MELAYU;43;;
+120222010105;MUHAMMAD HAZIM IKRAM BIN JUSOH;1 INOVASI;BAHASA MELAYU;39;;
+120611011507;MUHAMMAD HIQMAL BIN YUSRI;1 INOVASI;BAHASA MELAYU;51;;
+121108010472;NUR AIEN KHAIRUNNISA BINTI ASMAFAIZAL;1 INOVASI;BAHASA MELAYU;54;;
+120526011924;NUR ASLINDA BINTI ABDUL KHALID KHAIRI;1 INOVASI;BAHASA MELAYU;56;;
+120126010914;NUR FIRZANA BINTI MOHAMAD HAMIM;1 INOVASI;BAHASA MELAYU;61;;
+120219010294;NUR QISYA HADIRAH BINTI NOR AZRAN SHAH;1 INOVASI;BAHASA MELAYU;57;;
+120831011672;NUR SYAZA ZAFIRAH BINTI MUHAMMAD NAZMI;1 INOVASI;BAHASA MELAYU;50;;
+120416010592;NURUL ASYIQIN BINTI JUMARI;1 INOVASI;BAHASA MELAYU;61;;
+121213010888;NURUL AUNI FIRDINA BINTI SANUDIN;1 INOVASI;BAHASA MELAYU;52;;
+120127011687;PHOA ZI TIAN;1 INOVASI;BAHASA MELAYU;7;;
+121009012448;PUTERI NUR EMALYN BINTI MOHAMED SAHARIL;1 INOVASI;BAHASA MELAYU;48;;
+120921011350;SAFIYYA QADEEJA BINTI ZAMRI;1 INOVASI;BAHASA MELAYU;45;;
+120322011121;SAJINES A/L MANOGAR;1 INOVASI;BAHASA MELAYU;9;;
+121210010380;SITI NUR FATIHAH BINTI ROSLI;1 INOVASI;BAHASA MELAYU;22;;
+120321011664;THIVASHINI A/P VASANTHAN;1 INOVASI;BAHASA MELAYU;40;;
+121010011178;WONG YEE ROU;1 INOVASI;BAHASA MELAYU;46;;
+110508081057;WONG ZHENG SENG;1 INOVASI;BAHASA MELAYU;17;;
+110701011165;ABDUL QAYYUM IRFAN BIN FADZIL;2 KREATIF;BAHASA MELAYU;18;;
+111111010087;ADAM DANISH BIN YUSRIZAL;2 KREATIF;BAHASA MELAYU;29;;
+110408010964;CHONG EN XUAN;2 KREATIF;BAHASA MELAYU;20;;
+100125011773;CHONG RUI CHENG;2 KREATIF;BAHASA MELAYU;5;;
+101029011188;CHONG XIN YI;2 KREATIF;BAHASA MELAYU;10;;
+110901011733;HEAH LI HAN;2 KREATIF;BAHASA MELAYU;6;;
+110524011809;KABBINASHH A/L RAJA SEGHRAN;2 KREATIF;BAHASA MELAYU;7;;
+100223060077;LAM KIN WENG;2 KREATIF;BAHASA MELAYU;5;;
+110828010725;MOHAMAD FIRDAUS BIN NIZAM;2 KREATIF;BAHASA MELAYU;6;;
+110821011397;MUHAMMAD AIMAN SHARIEZAN BIN ABDULLAH;2 KREATIF;BAHASA MELAYU;5;;
+111204010107;MUHAMMAD AZRIL SYAZWAN BIN ABDUL RAHMAN;2 KREATIF;BAHASA MELAYU;8;;
+110629011303;MUHAMMAD HAFIQ HAZWAN BIN ABDUL HAMID;2 KREATIF;BAHASA MELAYU;14;;
+K2351608D;MUHAMMAD IMAM BAIHAQI BIN HUD;2 KREATIF;BAHASA MELAYU;24;;
+110624010205;MUHAMMAD MIKAIL BIN SANI;2 KREATIF;BAHASA MELAYU;13;;
+110829010487;MUHAMMAD QAYYUM ZIKRY BIN MD TARMIZI;2 KREATIF;BAHASA MELAYU;25;;
+110516011083;MUHAMMAD SHAFRIL AFIQ BIN ABDULLAH;2 KREATIF;BAHASA MELAYU;13;;
+111019011650;NOR AFIFATUL MUNAWARAH BINTI NASIR;2 KREATIF;BAHASA MELAYU;55;;
+110612010806;NUR ALIYAH BINTI ABU BAKAR;2 KREATIF;BAHASA MELAYU;46;;
+111111011610;PRISCILLA KEAMAN ANAK ROBIN;2 KREATIF;BAHASA MELAYU;45;;
+110928010802;QISTINA DANIA BINTI MOHAMAD ZAMRI;2 KREATIF;BAHASA MELAYU;37;;
+100129010903;RAY CHING RUI ZHE;2 KREATIF;BAHASA MELAYU;2;;
+120101012163;SANTOSH A/L MOGANARAJ;2 KREATIF;BAHASA MELAYU;9;;
+111222010522;SITI AISYAH AQILAH BINTI MOHAMED SHAFIE;2 KREATIF;BAHASA MELAYU;32;;
+111119010890;SITI KHADIJAH BINTI MOHD HAIZAN;2 KREATIF;BAHASA MELAYU;35;;
+111028030212;SITI NUR ZAHARAH BINTI SABRI;2 KREATIF;BAHASA MELAYU;17;;
+CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
+110418010669;WONG YUE XIN;2 KREATIF;BAHASA MELAYU;4;;
+100915010839;YOONG KHA JUN;2 KREATIF;BAHASA MELAYU;8;;
+111129011811;YUVA RAJ A/L MARIE;2 KREATIF;BAHASA MELAYU;16;;
+`; // TANDA BACKTICK DI AKHIR
 
-        // --- FUNGSI PARSE DATA (Untuk kegunaan Mod Guru jika diaktifkan semula) ---
+        // Array untuk menyimpan data yang telah diproses
+        let studentData = [];
+
+        // --- FUNGSI PARSE DATA ---
         function parseStudentData(rawData) {
             const allRecords = [];
             const lines = rawData.trim().split('\n'); 
-            lines.forEach(line => {
-                if (line.trim() === "") return; 
-                const parts = line.split(';'); 
-                if (parts.length < 3) return; 
-                let kodPelajar = parts[0].trim();
-                if (kodPelajar.includes('E+')) { kodPelajar = Number(kodPelajar).toString(); }
+            lines.forEach((line, index) => {
+                if (line.trim() === "") return;
+                
+                const parts = line.split(';');
+                if (parts.length < 3) return;
+
+                // Abaikan baris tajuk (header) jika ada
+                const firstCol = parts[0].toLowerCase().trim();
+                if (firstCol === 'no ic' || firstCol === 'kod_pelajar' || firstCol === 'no_kp') return;
+
+                let noKp = parts[0].trim();
+                if (noKp.toUpperCase().includes('E+')) { 
+                    noKp = Number(noKp).toString(); 
+                }
                 const nama = parts[1].trim();
                 const kelas = parts[2].trim();
                 for (let i = 3; i < parts.length; i += 2) {
                     const subjek = parts[i] ? parts[i].trim() : null;
                     const markah = parts[i + 1] ? parts[i + 1].trim() : null;
                     if (subjek && markah && subjek !== "" && markah !== "") {
-                        allRecords.push({ kod_pelajar: kodPelajar, nama: nama, kelas: kelas, subjek: subjek, markah: parseInt(markah, 10) });
+                        allRecords.push({ no_kp: noKp, nama: nama, kelas: kelas, subjek: subjek, markah: parseInt(markah, 10) });
                     }
                 }
             });
             return allRecords;
         }
 
+        // --- PROSES DATA SECARA AUTOMATIK APABILA HALAMAN DIMUAT ---
+        try {
+            studentData = parseStudentData(rawStudentDataCsv);
+            console.log(`Berjaya memuat naik ${studentData.length} rekod markah.`);
+        } catch (e) {
+            console.error("Ralat memproses data CSV:", e);
+        }
+
         // --- (A) TETAPAN API GEMINI ---
-        const apiKey = ""; // Kunci API diuruskan oleh persekitaran ini
+        const apiKey = ""; 
         const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
         const ttsApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
@@ -254,16 +376,23 @@
             let rawInput = studentIdInput.value.trim();
             resetUI();
 
-            if (!rawInput) { showError('Sila masukkan Kod Pelajar atau No KP anda.'); return; }
+            if (!rawInput) { showError('Sila masukkan No Kad Pengenalan anda.'); return; }
             
             // Jika tiada data langsung dalam sistem
             if (studentData.length === 0) { showError('Harap maaf, data markah belum dimuat naik ke dalam sistem.'); return; }
 
-            let normalizedInput = rawInput.toUpperCase().includes('E+') ? Number(rawInput).toString() : rawInput;
-            const finalInputId = normalizedInput.toUpperCase();
-            const matchedRecords = studentData.filter(s => s.kod_pelajar.toUpperCase() === finalInputId);
+            let normalizedInput = rawInput;
+            // Hanya cuba tukar ke nombor jika ia dalam format saintifik (mengandungi 'E+')
+            if (rawInput.toUpperCase().includes('E+')) {
+                 normalizedInput = Number(rawInput).toString();
+            }
 
-            if (matchedRecords.length === 0) { showError('Kod Pelajar tidak ditemui. Sila semak dan cuba lagi.'); return; }
+            const finalInputId = normalizedInput.toUpperCase();
+            
+            // FILTER: Menggunakan kunci "no_kp"
+            const matchedRecords = studentData.filter(s => String(s.no_kp).toUpperCase() === finalInputId);
+
+            if (matchedRecords.length === 0) { showError('No Kad Pengenalan tidak ditemui. Sila semak dan cuba lagi.'); return; }
 
             displayResults(matchedRecords);
         }
@@ -297,7 +426,7 @@
             resultsContainer.classList.remove('hidden'); geminiSection.classList.remove('hidden');
         }
 
-        // --- FUNGSI GEMINI (TIDAK BERUBAH) ---
+        // --- FUNGSI GEMINI ---
         async function fetchWithBackoff(url, options, maxRetries=3) {
              let delay=1000; for(let i=0;i<maxRetries;i++){ try{const res=await fetch(url,options);if(res.ok)return res.json();if(res.status===429){await new Promise(r=>setTimeout(r,delay));delay*=2;}else throw new Error(res.status);}catch(e){if(i===maxRetries-1)throw e;await new Promise(r=>setTimeout(r,delay));delay*=2;}}}
 
@@ -331,7 +460,6 @@
         function pcmToWav(pcm,r){const c=1,b=16,d=pcm.length*2,bf=new ArrayBuffer(44+d),v=new DataView(bf);wS(v,0,'RIFF');v.setUint32(4,36+d,true);wS(v,8,'WAVE');wS(v,12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,c,true);v.setUint32(24,r,true);v.setUint32(28,r*c*2,true);v.setUint16(32,c*2,true);v.setUint16(34,b,true);wS(v,36,'data');v.setUint32(40,d,true);for(let i=0;i<pcm.length;i++)v.setInt16(44+i*2,pcm[i],true);return new Blob([v],{type:'audio/wav'});}
         function wS(v,o,s){for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
 
-        // Pautkan Event Listeners
         loadDataButton.addEventListener('click', loadData);
         checkButton.addEventListener('click', checkMarks);
         generateCommentButton.addEventListener('click', handleGenerateComment);
