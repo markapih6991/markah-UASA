@@ -56,19 +56,44 @@
             <p class="text-base text-gray-600 mt-1">Ujian Akhir Sesi Akademik</p>
         </div>
 
+        <!-- === BAHAGIAN BARU: RUANGAN DATA CSV === -->
+        <div class="space-y-4 mb-6 border-b border-gray-200 pb-6">
+            <div>
+                <label for="dataTextArea" class="block text-sm font-medium text-gray-700 mb-1">
+                    Langkah 1: Tampal Data CSV Di Sini
+                </label>
+                <textarea id="dataTextArea" rows="6" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          placeholder="Contoh:
+1.11E+11;NAMA PELAJAR;KELAS;subjek 1;80;subjek 2;75
+1.12E+11;NAMA LAIN;KELAS;subjek 1;88;subjek 2;90"></textarea>
+            </div>
+            <button id="loadDataButton" 
+                    class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                Muat Naik Data
+            </button>
+            <div id="dataLoadMessage" class="hidden text-center font-medium p-3 rounded-lg">
+                <!-- Mesej status muat naik data -->
+            </div>
+        </div>
+        <!-- === TAMAT BAHAGIAN BARU === -->
+
+
         <!-- Bahagian Input Pengguna -->
-        <div class="space-y-4">
+        <div id="searchSection" class="space-y-4">
             <div>
                 <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
-                    Kod Pelajar / No Kad Pengenalan Murid
+                    Langkah 2: Masukkan Kod Pelajar / No KP
                 </label>
                 <input type="text" id="studentIdInput" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" 
-                       placeholder="Contoh: P101">
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                       placeholder="Contoh: 111009..."
+                       disabled> <!-- Mula sebagai 'disabled' -->
             </div>
             
             <button id="checkButton" 
-                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    disabled> <!-- Mula sebagai 'disabled' -->
                 Semak Markah
             </button>
         </div>
@@ -141,23 +166,57 @@
 
     <script>
         // --- (1) SEDIAKAN DATA ANDA DI SINI ---
-        const studentData = [
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 85 },
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "English", markah: 72 },
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Sains", markah: 60 },
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Matematik", markah: 90 },
-            { kod_pelajar: "P101", nama: "Ahmad Bin Abu", kelas: "5 Amanah", subjek: "Pendidikan Islam", markah: 88 },
-            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Bahasa Melayu", markah: 45 },
-            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "English", markah: 55 },
-            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Sains", markah: 30 },
-            { kod_pelajar: "P102", nama: "Siti Nurhaliza Binti Kamal", kelas: "5 Bestari", subjek: "Matematik", markah: 18 },
-            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Bahasa Melayu", markah: 68 },
-            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "English", markah: 81 },
-            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Sains", markah: 75 },
-            { kod_pelajar: "P103", nama: "Raju A/L Muthusamy", kelas: "5 Amanah", subjek: "Pendidikan Moral", markah: 50 },
-            { kod_pelajar: "P104", nama: "Mei Ling Tan", kelas: "5 Cekal", subjek: "Bahasa Melayu", markah: 19 },
-            { kod_pelajar: "P104", nama: "Mei Ling Tan", kelas: "5 Cekal", subjek: "Bahasa Cina", markah: 34 },
-        ];
+        
+        // Pembolehubah ini akan diisi oleh textarea
+        let studentData = [];
+        
+        /**
+         * Fungsi untuk memproses data mentah menjadi format array JavaScript
+         * yang boleh difahami oleh aplikasi.
+         */
+        function parseStudentData(rawData) {
+            const allRecords = [];
+            const lines = rawData.trim().split('\n'); // Pecah setiap baris
+
+            lines.forEach(line => {
+                if (line.trim() === "") return; // Abaikan baris kosong
+
+                const parts = line.split(';'); // Pecah baris dengan delimiter ;
+                if (parts.length < 3) return; // Mesti ada sekurang-kurangnya ID, nama, kelas
+
+                // Ambil maklumat asas pelajar
+                let kodPelajar = parts[0].trim();
+                
+                // Semak jika kod_pelajar dalam format saintifik (cth: 1.11E+11)
+                // dan tukarkannya kepada string nombor penuh (cth: "111000000000")
+                if (kodPelajar.includes('E+')) {
+                    kodPelajar = Number(kodPelajar).toString();
+                }
+                
+                const nama = parts[1].trim();
+                const kelas = parts[2].trim();
+
+                // Proses pasangan subjek & markah
+                // Mula dari indeks 3, dan langkau 2 setiap kali (subjek, markah)
+                for (let i = 3; i < parts.length; i += 2) {
+                    const subjek = parts[i] ? parts[i].trim() : null;
+                    const markah = parts[i + 1] ? parts[i + 1].trim() : null;
+
+                    // Hanya tambah jika kedua-dua subjek dan markah wujud
+                    if (subjek && markah && subjek !== "" && markah !== "") {
+                        allRecords.push({
+                            kod_pelajar: kodPelajar,
+                            nama: nama,
+                            kelas: kelas,
+                            subjek: subjek,
+                            markah: parseInt(markah, 10) // Tukar markah ke nombor
+                        });
+                    }
+                }
+            });
+            return allRecords;
+        }
+        
         // --- TAMAT BAHAGIAN DATA ---
 
         // --- (A) TETAPAN API GEMINI ---
@@ -186,10 +245,56 @@
         const readAloudButton = document.getElementById('readAloudButton');
         const ttsLoading = document.getElementById('ttsLoading');
         const audioPlayer = document.getElementById('audioPlayer');
+        
+        // Rujukan DOM untuk ciri data
+        const dataTextArea = document.getElementById('dataTextArea');
+        const loadDataButton = document.getElementById('loadDataButton');
+        const dataLoadMessage = document.getElementById('dataLoadMessage');
 
         // Pembolehubah untuk menyimpan data pelajar semasa
         let currentStudentRecords = [];
         let fullTextToRead = "";
+        
+        // --- FUNGSI BARU: Muat Naik Data ---
+        function loadData() {
+            const rawData = dataTextArea.value;
+            if (rawData.trim() === "") {
+                dataLoadMessage.textContent = 'Ruangan data tidak boleh kosong.';
+                dataLoadMessage.classList.remove('hidden', 'text-green-700', 'bg-green-100');
+                dataLoadMessage.classList.add('text-red-700', 'bg-red-100');
+                return;
+            }
+
+            try {
+                studentData = parseStudentData(rawData); // Proses data
+                if (studentData.length === 0) {
+                    throw new Error('Format data tidak sah atau tiada data ditemui.');
+                }
+                
+                // Berjaya dimuat naik
+                dataLoadMessage.textContent = `Berjaya memuat naik ${studentData.length} rekod.`;
+                dataLoadMessage.classList.remove('hidden', 'text-red-700', 'bg-red-100');
+                dataLoadMessage.classList.add('text-green-700', 'bg-green-100');
+                
+                // Aktifkan (enable) bahagian carian
+                studentIdInput.disabled = false;
+                checkButton.disabled = false;
+                
+                // Sembunyikan data input untuk beri ruang
+                dataTextArea.disabled = true;
+                loadDataButton.disabled = true;
+                dataTextArea.classList.add('bg-gray-100');
+                loadDataButton.classList.add('bg-gray-400');
+                loadDataButton.textContent = 'Data Telah Dimuat Naik';
+
+            } catch (error) {
+                dataLoadMessage.textContent = `Ralat: ${error.message}`;
+                dataLoadMessage.classList.remove('hidden', 'text-green-700', 'bg-green-100');
+                dataLoadMessage.classList.add('text-red-700', 'bg-red-100');
+                studentIdInput.disabled = true;
+                checkButton.disabled = true;
+            }
+        }
 
         // (5) Fungsi Peraturan Penggredan
         function calculateGrade(markah) {
@@ -205,7 +310,7 @@
         // (3) Fungsi Logik Carian Utama
         function checkMarks() {
             // Dapatkan input, buang ruang kosong, dan tukar ke huruf besar untuk perbandingan
-            const inputId = studentIdInput.value.trim().toUpperCase();
+            let rawInput = studentIdInput.value.trim();
 
             // Kosongkan keputusan & ralat lama
             resultsContainer.classList.add('hidden');
@@ -228,15 +333,26 @@
 
 
             // Semak jika input kosong
-            if (!inputId) {
+            if (!rawInput) {
                 errorContainer.textContent = 'Sila masukkan Kod Pelajar atau No KP anda.';
                 errorContainer.classList.remove('hidden');
                 return;
             }
 
-            // Tapis data berdasarkan kod_pelajar
+            // --- PEMBETULAN UNTUK NO IC/KOD SAINTIFIK ---
+            // 1. Normalkan input (jika pengguna menampal "1.11E+11")
+            let normalizedInput = rawInput;
+            if (rawInput.toUpperCase().includes('E+')) {
+                normalizedInput = Number(rawInput).toString();
+            }
+
+            // 2. Tukar input yang telah dinormalkan ke huruf besar untuk perbandingan
+            const finalInputId = normalizedInput.toUpperCase();
+            
+            // 3. Tapis data, dan tukar juga data kod_pelajar ke huruf besar
+            //    (Ini selamat untuk nombor "111..." dan penting untuk ID seperti "P101")
             const matchedRecords = studentData.filter(student => 
-                student.kod_pelajar.toUpperCase() === inputId
+                student.kod_pelajar.toUpperCase() === finalInputId
             );
 
             // (3) Logik Mesej Ralat jika tiada padanan
@@ -290,6 +406,7 @@
         }
 
         // (2) Pautkan fungsi kepada butang
+        loadDataButton.addEventListener('click', loadData); // Pautkan butang baru
         checkButton.addEventListener('click', checkMarks);
         generateCommentButton.addEventListener('click', handleGenerateComment);
         readAloudButton.addEventListener('click', handleReadAloud);
@@ -504,4 +621,3 @@
     </script>
 </body>
 </html>
-
