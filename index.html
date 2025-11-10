@@ -48,12 +48,17 @@
         details > summary::-webkit-details-marker {
             display: none;
         }
+        /* Gaya untuk senarai HTML yang dijana oleh AI */
+        .ai-content ul, .ai-content ol { margin-left: 1.5rem; margin-top: 0.5rem; list-style-type: disc; }
+        .ai-content ol { list-style-type: decimal; }
+        .ai-content li { margin-bottom: 0.25rem; }
+        .ai-content strong { color: #4338ca; } /* indigo-700 */
     </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
 
     <!-- Kad Utama -->
-    <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-6 md:p-8">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-2xl p-6 md:p-8">
 
         <!-- Bahagian Tajuk -->
         <div class="text-center mb-6">
@@ -64,7 +69,6 @@
         </div>
 
         <!-- === BAHAGIAN ADMIN (DISEMBUNYIKAN UNTUK PELAJAR) === -->
-        <!-- Nota: Kelas 'hidden' ditambah semula di sini -->
         <details id="adminSection" class="hidden mb-6 bg-blue-50 rounded-lg border border-blue-100 overflow-hidden group">
             <summary class="flex items-center justify-between w-full p-3 font-medium text-sm text-blue-800 cursor-pointer hover:bg-blue-100 focus:outline-none">
                 <span>🛠️ (Mod Guru) Klik untuk Muat Naik Data</span>
@@ -88,7 +92,7 @@
         <!-- === TAMAT BAHAGIAN ADMIN === -->
 
         <!-- Bahagian Input Pengguna -->
-        <div id="searchSection" class="space-y-4">
+        <div id="searchSection" class="space-y-4 max-w-md mx-auto">
             <div>
                 <label for="studentIdInput" class="block text-sm font-medium text-gray-700 mb-1">
                     Masukkan No Kad Pengenalan
@@ -105,7 +109,7 @@
         </div>
 
         <!-- Bahagian Mesej Ralat -->
-        <div id="errorContainer" class="hidden mt-4 text-center text-red-700 font-medium bg-red-100 p-3 rounded-lg"></div>
+        <div id="errorContainer" class="hidden mt-4 text-center text-red-700 font-medium bg-red-100 p-3 rounded-lg max-w-md mx-auto"></div>
 
         <!-- Bahagian Paparan Keputusan -->
         <div id="resultsContainer" class="hidden mt-8">
@@ -113,41 +117,71 @@
                 <h2 id="studentName" class="text-2xl font-bold text-gray-900 uppercase"></h2>
                 <p id="studentClass" class="text-lg text-gray-600 mt-1"></p>
             </div>
-            <div id="marksList" class="space-y-4"></div>
+            <div id="marksList" class="space-y-4 max-w-md mx-auto"></div>
 
-            <!-- Bahagian Gemini -->
-            <div id="geminiSection" class="hidden mt-6 border-t border-gray-200 pt-6">
-                <button id="generateCommentButton" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
-                    ✨ Jana Ulasan Prestasi AI
-                </button>
-                <div id="geminiLoading" class="hidden mt-4 text-center text-gray-600">
+            <!-- Bahagian Gemini AI Features -->
+            <div id="geminiSection" class="hidden mt-8 border-t border-gray-200 pt-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Analisis Pintar AI (Gemini)</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Butang Ulasan Asas -->
+                    <button id="generateCommentButton" class="col-span-1 md:col-span-2 w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition-all transform hover:scale-[1.02] flex items-center justify-center">
+                        <span>✨ Jana Ulasan Prestasi</span>
+                    </button>
+
+                    <!-- Butang Tambahan AI -->
+                    <button id="studyPlanButton" class="hidden w-full bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-purple-700 transition-all transform hover:scale-[1.02] flex items-center justify-center">
+                        <span>✨ Jana Pelan Ulangkaji</span>
+                    </button>
+                     <button id="careerButton" class="hidden w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-teal-700 transition-all transform hover:scale-[1.02] flex items-center justify-center">
+                        <span>✨ Cadangan Bidang/Kerjaya</span>
+                    </button>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="geminiLoading" class="hidden mt-6 text-center text-gray-600 bg-gray-50 p-4 rounded-lg">
                     <div class="flex items-center justify-center">
-                        <div class="loader"></div><span>Menganalisis prestasi...</span>
+                        <div class="loader"></div><span id="loadingText">Sedang menganalisis...</span>
                     </div>
                 </div>
-                <div id="geminiResult" class="hidden mt-4 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                    <h4 class="text-lg font-semibold text-indigo-900 mb-2">Ulasan dari Penasihat AI:</h4>
-                    <p id="geminiCommentText" class="text-base text-indigo-800 whitespace-pre-wrap"></p>
-                    <button id="readAloudButton" class="hidden mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700 transition-all text-sm">
-                        🔊 Sebutkan Keputusan & Ulasan
+
+                <!-- Hasil AI 1: Ulasan Umum -->
+                <div id="geminiResult" class="hidden mt-6 bg-indigo-50 p-5 rounded-xl border border-indigo-200 ai-content">
+                    <h4 class="text-lg font-bold text-indigo-900 mb-2 flex items-center">
+                        🤖 Ulasan Penasihat AI:
+                    </h4>
+                    <div id="geminiCommentText" class="text-base text-indigo-900 leading-relaxed"></div>
+                    <button id="readAloudButton" class="mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700 transition-all text-sm flex items-center justify-center">
+                        <span class="mr-2">🔊</span> Dengar Ulasan
                     </button>
-                    <div id="ttsLoading" class="hidden mt-4 text-center text-gray-600">
-                        <div class="flex items-center justify-center">
-                            <div class="loader"></div><span>Menjana audio...</span>
-                        </div>
+                     <div id="ttsLoading" class="hidden mt-2 text-center text-sm text-gray-600 flex items-center justify-center">
+                        <div class="loader w-4 h-4 mr-2"></div>Menjana audio...
                     </div>
                     <audio id="audioPlayer" class="hidden"></audio>
                 </div>
+
+                <!-- Hasil AI 2: Pelan Ulangkaji -->
+                <div id="studyPlanResult" class="hidden mt-6 bg-purple-50 p-5 rounded-xl border border-purple-200 ai-content">
+                     <h4 class="text-lg font-bold text-purple-900 mb-2 flex items-center">
+                        📚 Pelan Ulangkaji Disyorkan:
+                    </h4>
+                    <div id="studyPlanText" class="text-base text-purple-900 leading-relaxed"></div>
+                </div>
+
+                <!-- Hasil AI 3: Kerjaya -->
+                 <div id="careerResult" class="hidden mt-6 bg-teal-50 p-5 rounded-xl border border-teal-200 ai-content">
+                     <h4 class="text-lg font-bold text-teal-900 mb-2 flex items-center">
+                        🚀 Cadangan Laluan Masa Depan:
+                    </h4>
+                    <div id="careerText" class="text-base text-teal-900 leading-relaxed"></div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
         // --- (1) DATA PELAJAR (WAJIB ISI UNTUK GITHUB/VERCEL) ---
-        /* CIKGU, SILA TAMPAL DATA CSV ANDA DI ANTARA TANDA BACKTICK (`) DI BAWAH.
-           JANGAN PADAM TANDA ` DI AWAL DAN DI AKHIR DATA.
-        */
-
         const rawStudentDataCsv = `
 no ic;nama;kelas;subjek;markah;subjek;markah
 111009060459;ABDUL SALAM BIN ABDUL RAUF;2 EFESIEN;BAHASA MELAYU;61;BAHASA INGGERIS;50
@@ -267,9 +301,8 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
 110418010669;WONG YUE XIN;2 KREATIF;BAHASA MELAYU;4;;
 100915010839;YOONG KHA JUN;2 KREATIF;BAHASA MELAYU;8;;
 111129011811;YUVA RAJ A/L MARIE;2 KREATIF;BAHASA MELAYU;16;;
-`; // TANDA BACKTICK DI AKHIR
+`; 
 
-        // Array untuk menyimpan data yang telah diproses
         let studentData = [];
 
         // --- FUNGSI PARSE DATA ---
@@ -278,14 +311,10 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
             const lines = rawData.trim().split('\n'); 
             lines.forEach((line, index) => {
                 if (line.trim() === "") return;
-                
                 const parts = line.split(';');
                 if (parts.length < 3) return;
-
-                // Abaikan baris tajuk (header) jika ada
                 const firstCol = parts[0].toLowerCase().trim();
                 if (firstCol === 'no ic' || firstCol === 'kod_pelajar' || firstCol === 'no_kp') return;
-
                 let noKp = parts[0].trim();
                 if (noKp.toUpperCase().includes('E+')) { 
                     noKp = Number(noKp).toString(); 
@@ -303,7 +332,7 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
             return allRecords;
         }
 
-        // --- PROSES DATA SECARA AUTOMATIK APABILA HALAMAN DIMUAT ---
+        // --- PROSES DATA SECARA AUTOMATIK ---
         try {
             studentData = parseStudentData(rawStudentDataCsv);
             console.log(`Berjaya memuat naik ${studentData.length} rekod markah.`);
@@ -324,14 +353,29 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
         const studentClassEl = document.getElementById('studentClass');
         const marksListEl = document.getElementById('marksList');
         const errorContainer = document.getElementById('errorContainer');
+        
+        // Gemini DOM
         const geminiSection = document.getElementById('geminiSection');
-        const generateCommentButton = document.getElementById('generateCommentButton');
         const geminiLoading = document.getElementById('geminiLoading');
+        const loadingText = document.getElementById('loadingText');
+        
+        const generateCommentButton = document.getElementById('generateCommentButton');
         const geminiResult = document.getElementById('geminiResult');
         const geminiCommentText = document.getElementById('geminiCommentText');
+        
+        const studyPlanButton = document.getElementById('studyPlanButton');
+        const studyPlanResult = document.getElementById('studyPlanResult');
+        const studyPlanText = document.getElementById('studyPlanText');
+
+        const careerButton = document.getElementById('careerButton');
+        const careerResult = document.getElementById('careerResult');
+        const careerText = document.getElementById('careerText');
+
         const readAloudButton = document.getElementById('readAloudButton');
         const ttsLoading = document.getElementById('ttsLoading');
         const audioPlayer = document.getElementById('audioPlayer');
+        
+        // Admin DOM
         const dataTextArea = document.getElementById('dataTextArea');
         const loadDataButton = document.getElementById('loadDataButton');
         const dataLoadMessage = document.getElementById('dataLoadMessage');
@@ -343,18 +387,14 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
         // --- FUNGSI MUAT NAIK DATA (ADMIN) ---
         function loadData() {
             const rawData = dataTextArea.value;
-            if (rawData.trim() === "") {
-                showMessage('Ruangan data tidak boleh kosong.', true); return;
-            }
+            if (rawData.trim() === "") { showMessage('Ruangan data tidak boleh kosong.', true); return; }
             try {
                 const newData = parseStudentData(rawData);
                 if (newData.length === 0) throw new Error('Format data tidak sah.');
-                studentData = newData; // KEMASKINI DATA UTAMA
+                studentData = newData; 
                 showMessage(`Berjaya memuat naik ${studentData.length} rekod.`, false);
                 setTimeout(() => { adminSection.removeAttribute('open'); dataLoadMessage.classList.add('hidden'); }, 1500);
-            } catch (error) {
-                showMessage(`Ralat: ${error.message}`, true);
-            }
+            } catch (error) { showMessage(`Ralat: ${error.message}`, true); }
         }
         function showMessage(msg, isError) {
             dataLoadMessage.textContent = msg;
@@ -375,32 +415,19 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
         function checkMarks() {
             let rawInput = studentIdInput.value.trim();
             resetUI();
-
             if (!rawInput) { showError('Sila masukkan No Kad Pengenalan anda.'); return; }
-            
-            // Jika tiada data langsung dalam sistem
             if (studentData.length === 0) { showError('Harap maaf, data markah belum dimuat naik ke dalam sistem.'); return; }
-
-            let normalizedInput = rawInput;
-            // Hanya cuba tukar ke nombor jika ia dalam format saintifik (mengandungi 'E+')
-            if (rawInput.toUpperCase().includes('E+')) {
-                 normalizedInput = Number(rawInput).toString();
-            }
-
-            const finalInputId = normalizedInput.toUpperCase();
-            
-            // FILTER: Menggunakan kunci "no_kp"
-            const matchedRecords = studentData.filter(s => String(s.no_kp).toUpperCase() === finalInputId);
-
+            let normalizedInput = rawInput.toUpperCase().includes('E+') ? Number(rawInput).toString() : rawInput;
+            const matchedRecords = studentData.filter(s => String(s.no_kp).toUpperCase() === normalizedInput.toUpperCase());
             if (matchedRecords.length === 0) { showError('No Kad Pengenalan tidak ditemui. Sila semak dan cuba lagi.'); return; }
-
             displayResults(matchedRecords);
         }
 
         function resetUI() {
             resultsContainer.classList.add('hidden'); errorContainer.classList.add('hidden');
-            marksListEl.innerHTML = ''; geminiSection.classList.add('hidden'); geminiResult.classList.add('hidden');
-            generateCommentButton.classList.remove('hidden'); readAloudButton.classList.add('hidden');
+            marksListEl.innerHTML = ''; geminiSection.classList.add('hidden'); 
+            geminiResult.classList.add('hidden'); studyPlanResult.classList.add('hidden'); careerResult.classList.add('hidden');
+            generateCommentButton.classList.remove('hidden'); studyPlanButton.classList.add('hidden'); careerButton.classList.add('hidden');
             audioPlayer.pause(); audioPlayer.src = "";
         }
         function showError(msg) { errorContainer.textContent = msg; errorContainer.classList.remove('hidden'); }
@@ -410,7 +437,6 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
             studentNameEl.textContent = records[0].nama.toUpperCase();
             studentClassEl.textContent = `Kelas: ${records[0].kelas}`;
             fullTextToRead = `Keputusan untuk ${records[0].nama}, dari ${records[0].kelas}.\n`;
-
             records.forEach(r => {
                 const { gred, status } = calculateGrade(r.markah);
                 fullTextToRead += `${r.subjek}: ${r.markah}%, Gred ${gred}.\n`;
@@ -427,22 +453,71 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
         }
 
         // --- FUNGSI GEMINI ---
-        async function fetchWithBackoff(url, options, maxRetries=3) {
+        async function fetchWithBackoff(url, options, maxRetries=2) {
              let delay=1000; for(let i=0;i<maxRetries;i++){ try{const res=await fetch(url,options);if(res.ok)return res.json();if(res.status===429){await new Promise(r=>setTimeout(r,delay));delay*=2;}else throw new Error(res.status);}catch(e){if(i===maxRetries-1)throw e;await new Promise(r=>setTimeout(r,delay));delay*=2;}}}
 
-        async function handleGenerateComment() {
-            if (currentStudentRecords.length === 0) return;
-            geminiLoading.classList.remove('hidden'); generateCommentButton.classList.add('hidden');
-            const marksStr = currentStudentRecords.map(r => `${r.subjek}: ${r.markah}% (${calculateGrade(r.markah).gred})`).join(', ');
-            const payload = { contents: [{ parts: [{ text: `Tolong berikan ulasan untuk pelajar: ${currentStudentRecords[0].nama}, Kelas: ${currentStudentRecords[0].kelas}. Markah: ${marksStr}.` }] }], systemInstruction: { parts: [{ text: "Anda adalah guru penasihat AI yang positif. Beri ulasan ringkas (2-3 ayat) dalam Bahasa Melayu, puji yang cemerlang, beri galakan untuk yang lemah." }] } };
+        async function callGemini(prompt, systemPrompt) {
+            const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
             try {
                 const res = await fetchWithBackoff(textApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                const comment = res.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (comment) { geminiCommentText.innerText = comment; geminiResult.classList.remove('hidden'); readAloudButton.classList.remove('hidden'); fullTextToRead += `\nUlasan AI:\n ${comment}`; }
-            } catch (e) { geminiCommentText.innerText = 'Maaf, ulasan tidak dapat dijana.'; geminiResult.classList.remove('hidden'); }
-            finally { geminiLoading.classList.add('hidden'); }
+                return res.candidates?.[0]?.content?.parts?.[0]?.text;
+            } catch (e) { return null; }
         }
 
+        // 1. Ulasan Umum
+        async function handleGenerateComment() {
+            if (currentStudentRecords.length === 0) return;
+            geminiLoading.classList.remove('hidden'); loadingText.textContent = "Menganalisis prestasi keseluruhan...";
+            generateCommentButton.classList.add('hidden');
+            const marksStr = currentStudentRecords.map(r => `${r.subjek}: ${r.markah}% (${calculateGrade(r.markah).gred})`).join(', ');
+            const comment = await callGemini(
+                `Beri ulasan ringkas (maksimum 3 ayat) untuk pelajar: ${currentStudentRecords[0].nama}. Markah: ${marksStr}.`,
+                "Anda adalah guru penasihat yang positif. Beri ulasan ringkas dalam Bahasa Melayu. Puji yang cemerlang, beri galakan untuk yang lemah."
+            );
+            geminiLoading.classList.add('hidden');
+            if (comment) {
+                geminiCommentText.innerHTML = comment; geminiResult.classList.remove('hidden');
+                fullTextToRead += `\nUlasan Guru AI:\n ${comment}`;
+                // Tunjuk butang fitur seterusnya
+                studyPlanButton.classList.remove('hidden'); careerButton.classList.remove('hidden');
+            } else {
+                geminiCommentText.innerText = 'Maaf, ulasan tidak dapat dijana buat masa ini.'; geminiResult.classList.remove('hidden');
+            }
+        }
+
+        // 2. Pelan Ulangkaji (Study Plan)
+        async function handleStudyPlan() {
+            geminiLoading.classList.remove('hidden'); loadingText.textContent = "Menjana pelan ulangkaji...";
+            studyPlanButton.classList.add('hidden');
+            // Cari subjek lemah (C, D, E, F)
+            const weakSubjects = currentStudentRecords.filter(r => ['C','D','E','F'].includes(calculateGrade(r.markah).gred)).map(r => r.subjek).join(', ');
+            const promptSubject = weakSubjects || "semua subjek untuk pengukuhan";
+
+            const plan = await callGemini(
+                `Bina jadual ulangkaji ringkas (1 minggu) fokus kepada subjek: ${promptSubject}.`,
+                "Anda pakar motivasi. Berikan jawapan dalam format HTML (guna <ul><li>) dalam Bahasa Melayu. Jadual mestilah ringkas dan boleh dicapai oleh pelajar sekolah menengah."
+            );
+            geminiLoading.classList.add('hidden');
+            if (plan) { studyPlanText.innerHTML = plan; studyPlanResult.classList.remove('hidden'); }
+        }
+
+        // 3. Cadangan Kerjaya
+        async function handleCareer() {
+            geminiLoading.classList.remove('hidden'); loadingText.textContent = "Menganalisis potensi kerjaya...";
+            careerButton.classList.add('hidden');
+            // Cari subjek kuat (A, B)
+            const strongSubjects = currentStudentRecords.filter(r => ['A','B'].includes(calculateGrade(r.markah).gred)).map(r => r.subjek).join(', ');
+            const promptSubject = strongSubjects || "minat umum pelajar";
+
+            const career = await callGemini(
+                `Berdasarkan kekuatan dalam subjek: ${promptSubject}, cadangkan 3 bidang kerjaya atau aliran sekolah yang sesuai.`,
+                "Anda kaunselor kerjaya. Berikan jawapan dalam format HTML (guna <ol><li>) dalam Bahasa Melayu. Beri sebab ringkas kenapa bidang itu sesuai."
+            );
+            geminiLoading.classList.add('hidden');
+            if (career) { careerText.innerHTML = career; careerResult.classList.remove('hidden'); }
+        }
+
+        // 4. TTS (Read Aloud)
         async function handleReadAloud() {
             if (!fullTextToRead) return;
             ttsLoading.classList.remove('hidden'); readAloudButton.disabled = true;
@@ -453,7 +528,7 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
                      const wav = pcmToWav(new Int16Array(base64ToArrayBuffer(audioData)), 24000);
                      audioPlayer.src = URL.createObjectURL(wav); audioPlayer.play();
                 }
-            } catch (e) { console.error(e); ttsLoading.innerText = 'Gagal menjana audio.'; }
+            } catch (e) { console.error(e); }
             finally { ttsLoading.classList.add('hidden'); readAloudButton.disabled = false; }
         }
         function base64ToArrayBuffer(b64){const b=atob(b64),l=b.length,u=new Uint8Array(l);for(let i=0;i<l;i++)u[i]=b.charCodeAt(i);return u.buffer;}
@@ -463,6 +538,8 @@ CA660876;TANG RUI EN;2 KREATIF;BAHASA MELAYU;14;;
         loadDataButton.addEventListener('click', loadData);
         checkButton.addEventListener('click', checkMarks);
         generateCommentButton.addEventListener('click', handleGenerateComment);
+        studyPlanButton.addEventListener('click', handleStudyPlan);
+        careerButton.addEventListener('click', handleCareer);
         readAloudButton.addEventListener('click', handleReadAloud);
         studentIdInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkMarks(); });
     </script>
